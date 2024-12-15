@@ -50,8 +50,7 @@ async function run() {
       const result = await jobsCollection.findOne(query);
       res.send(result);
     });
-    
-    
+
     //get single job data
     app.get("/update/:id", async (req, res) => {
       const id = req.params.id;
@@ -59,14 +58,37 @@ async function run() {
       const result = await jobsCollection.findOne(query);
       res.send(result);
     });
-    
-    
+
     // delete single job data
     app.delete("/jobs/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await jobsCollection.deleteOne(query);
       res.send(result);
+    });
+
+    // update single job data by id
+    app.put("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const UpdatedJobData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          job_title: UpdatedJobData.job_title,
+          category: UpdatedJobData.category,
+          min_price: UpdatedJobData.min_price,
+          max_price: UpdatedJobData.max_price,
+          description: UpdatedJobData.description,
+          deadling: UpdatedJobData.deadling,
+
+          bidCount: UpdatedJobData.bidCount,
+        },
+      };
+      const result = await jobsCollection.updateOne(query, updateDoc);
+      res.send(result);
+      // console.log(UpdatedJobData.job_title);
+      
+      
     });
 
     //get jobs data by email

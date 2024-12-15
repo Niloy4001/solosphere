@@ -1,11 +1,16 @@
+import axios from "axios";
+import { format } from "date-fns";
+import { da } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useLoaderData } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 const UpdateJob = () => {
   const [startDate, setStartDate] = useState(new Date());
 
+  const navigate = useNavigate()
   const { data: job } = useLoaderData();
   const {
     _id,
@@ -20,10 +25,27 @@ const UpdateJob = () => {
     bidCount,
   } = job || {};
 
-  useEffect(()=>{
-    setStartDate(deadling)
-  },[])
+  useEffect(() => {
+    setStartDate(deadling);
+  }, []);
 
+  const handleUpdate =async (e, id) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const dataObj = Object.fromEntries(formData.entries());
+    dataObj.deadling = format(new Date(startDate), "P");
+    dataObj.bidCount = bidCount;
+
+    try {
+      await axios.put(`http://localhost:4000/update/${id}`, dataObj);
+      // e.target.reset();
+      navigate("/my-posted-jobs")
+      toast.success("Updated successfully!");
+    } catch (err) {
+      toast.error(err.message);
+    }
+
+  };
   // console.log(job);
 
   return (
@@ -33,7 +55,7 @@ const UpdateJob = () => {
           Update a Job
         </h2>
 
-        <form>
+        <form onSubmit={(e) => handleUpdate(e, _id)}>
           <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
             <div>
               <label className="text-gray-700 " htmlFor="job_title">
